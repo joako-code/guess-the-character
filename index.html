@@ -1,13 +1,61 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guess the character</title>
-    <link rel="stylesheet" href="./css/styles.css">
-    <script defer src="./js/main.js"></script>
-</head>
-<body>
-    <h1>.</h1>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GuessWho</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css"
+    />
+    <style>
+      .grid-themes {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+      .item-themes {
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      .item-themes:hover {
+        transform: scale(1.05);
+        border-color: var(--primary);
+      }
+      article {
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      article:hover {
+        transform: scale(1.05);
+        border-color: var(--primary);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="container">
+      <h1>Guess the character</h1>
+    </header>
+
+    <main class="container">
+      <section id="info">Score : 0</section>
+      <section id="themes-selection">
+        <h3>Choose your theme:</h3>
+        <div class="grid-themes">
+          <div class="item-themes">
+            <h3>Pokemon</h3>
+            <button>Jugar</button>
+          </div>
+          <div class="item-themes">
+            <h3>Mortal Kombat</h3>
+            <button>Jugar</button>
+          </div>
+          <div class="item-themes">
+            <h3>Dragon Ball</h3>
+            <button>Jugar</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
 </html>
