@@ -1,22 +1,30 @@
 import { navigate, getPath } from './router.js';
 import { showView } from './dom.js';
 
-// 1. Escuchar clics en los botones de "Jugar"
-document.querySelectorAll('[data-theme]').forEach(button => {
-    button.addEventListener('click', () => {
-        const theme = button.getAttribute('data-theme');
-        navigate(`/${theme}`);
-    });
-});
+// Alias para objetos globales
+const $btnPlay = document.querySelectorAll(".btn-play");
+const $btnBack = document.querySelectorAll("#btn-back");
+const $win = window;
 
-// 2. Escuchar el botón de volver
-document.getElementById('btn-back').addEventListener('click', () => {
-    navigate('/');
-});
+// Función de actualización de vista
+const update = () => showView(getPath());
 
-// 3. Reaccionar a cambios de ruta (flechas navegador y navegación interna)
-window.addEventListener('locationchange', () => showView(getPath()));
-window.addEventListener('popstate', () => showView(getPath()));
+$btnPlay.forEach((btn)=>{
+    btn.addEventListener("click",()=>{
+        const themeBtn  = btn.dataset.theme
+        if(themeBtn) return navigate(`/${themeBtn}`)
+    })
+})
 
-// 4. Carga inicial
-showView(getPath());
+$btnBack.forEach((btn)=>{
+    btn.addEventListener("click",()=>{
+        navigate('/')
+    })
+})
+
+/* --- 2. Sincronización de Navegación --- */
+$win.addEventListener('popstate', update);
+$win.addEventListener('locationchange', update);
+
+/* --- 3. Inicialización --- */
+update();
