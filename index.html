@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,29 +8,6 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css"
     />
-    <style>
-      .grid-themes {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-      }
-      .item-themes {
-        cursor: pointer;
-        transition: transform 0.2s;
-      }
-      .item-themes:hover {
-        transform: scale(1.05);
-        border-color: var(--primary);
-      }
-      article {
-        cursor: pointer;
-        transition: transform 0.2s;
-      }
-      article:hover {
-        transform: scale(1.05);
-        border-color: var(--primary);
-      }
-    </style>
   </head>
   <body>
     <header class="container">
@@ -38,24 +15,31 @@
     </header>
 
     <main class="container">
-      <section id="info">Score : 0</section>
-      <section id="themes-selection">
+      <section id="view-home">
+        <div id="info">Score: 0</div>
         <h3>Choose your theme:</h3>
         <div class="grid-themes">
           <div class="item-themes">
             <h3>Pokemon</h3>
-            <button>Jugar</button>
+            <button data-theme="pokemon">Jugar</button>
           </div>
           <div class="item-themes">
             <h3>Mortal Kombat</h3>
-            <button>Jugar</button>
+            <button data-theme="mortal-kombat">Jugar</button>
           </div>
           <div class="item-themes">
             <h3>Dragon Ball</h3>
-            <button>Jugar</button>
+            <button data-theme="dragon-ball">Jugar</button>
           </div>
         </div>
       </section>
+
+      <section id="view-game" style="display: none">
+        <button id="btn-back" class="outline secondary">⬅ Volver</button>
+        <div id="game-content"></div>
+      </section>
     </main>
+
+    <script type="module" src="js/main.js"></script>
   </body>
 </html>
