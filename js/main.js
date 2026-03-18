@@ -1,30 +1,153 @@
+/**
+ * main.js — Orquestador de la aplicación.
+ *
+ * Conecta las tres capas:
+ *   router.js    → detecta cambios de URL
+ *   gameEngine.js → lógica de juego
+ *   dom.js       → renderizado
+ *
+ * Este archivo NO contiene lógica de juego ni manipulación directa del DOM.
+ * Su único trabajo es responder a eventos y delegar.
+ */
+
 import { navigate, getPath } from './router.js';
-import { showView } from './dom.js';
+import { createGame }        from './gameEngine.js';
+import {
+  showHome,
+  showGame,
+  renderLoading,
+  renderRound,
+  renderFeedback,
+  renderGameOver,
+  renderError,
+  updateScore,
+} from './dom.js';
 
-// Alias para objetos globales
-const $btnPlay = document.querySelectorAll(".btn-play");
-const $btnBack = document.querySelectorAll("#btn-back");
-const $win = window;
+// ─── Estado mínimo de la app ──────────────────────────────────────────────────
 
-// Función de actualización de vista
-const update = () => showView(getPath());
+let engine = null; // instancia activa del gameEngine
 
-$btnPlay.forEach((btn)=>{
-    btn.addEventListener("click",()=>{
-        const themeBtn  = btn.dataset.theme
-        if(themeBtn) return navigate(`/${themeBtn}`)
-    })
-})
+// ─── Routing ──────────────────────────────────────────────────────────────────
 
-$btnBack.forEach((btn)=>{
-    btn.addEventListener("click",()=>{
-        navigate('/')
-    })
-})
+/**
+ * Se ejecuta en cada cambio de URL.
+ * Decide qué vista mostrar y, si corresponde, inicia una partida.
+ */
+async function handleRoute() {
+  const path = getPath();
 
-/* --- 2. Sincronización de Navegación --- */
-$win.addEventListener('popstate', update);
-$win.addEventListener('locationchange', update);
+  if (path === '/' || path === '/index.html') {
+    showHome();
+    return;
+  }
 
-/* --- 3. Inicialización --- */
-update();
+  // Extraemos la key del tema desde la URL: '/pokemon' → 'pokemon'
+  const themeKey = path.replace('/', '');
+  await startGame(themeKey);
+}
+
+// ─── Ciclo de juego ───────────────────────────────────────────────────────────
+
+/**
+ * Inicializa y arranca una partida para el tema dado.
+ * Maneja el estado de carga y los errores de red.
+ *
+ * @param {string} themeKey
+ */
+async function startGame(themeKey) {
+  showGame();
+  renderLoading();
+
+  try {
+    engine = createGame(themeKey);
+    await engine.init();
+    updateScore(0);
+    showNextRound();
+  } catch (err) {
+    console.error(err);
+    renderError('No se pudieron cargar los personajes.');
+  }
+}
+
+/**
+ * Pide la siguiente ronda al engine y la renderiza.
+ * Si no hay más rondas, muestra la pantalla de fin.
+ */
+function showNextRound() {
+  const round = engine.nextRound();
+
+  if (!round) {
+    // Esto no debería pasar si isLastRound se maneja bien, pero por seguridad
+    const state = engine.getState();
+    showEndScreen(state.score);
+    return;
+  }
+
+  renderRound(round, onAnswer);
+}
+
+/**
+ * Callback que se pasa a dom.js → se llama cuando el usuario elige una opción.
+ *
+ * @param {string} selectedId — data-id del botón clickeado
+ */
+function onAnswer(selectedId) {
+  const result = engine.answer(selectedId);
+  updateScore(result.score);
+  renderFeedback(result, onNext);
+}
+
+/**
+ * Callback para el botón "Siguiente" del feedback.
+ * Avanza a la próxima ronda o termina la partida.
+ */
+function onNext() {
+  const state = engine.getState();
+
+  if (state.isFinished) {
+    showEndScreen(state.score);
+  } else {
+    showNextRound();
+  }
+}
+
+/**
+ * Muestra la pantalla de fin de partida.
+ *
+ * @param {number} score
+ */
+function showEndScreen(score) {
+  const state = engine.getState();
+
+  renderGameOver(
+    score,
+    state.totalRounds,
+    () => startGame(state.themeKey),  // Replay: mismo tema
+    () => navigate('/'),               // Home: volver al inicio
+  );
+}
+
+// ─── Eventos globales ─────────────────────────────────────────────────────────
+
+// Botones "Play" del home
+document.querySelectorAll('.btn-play').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const theme = btn.dataset.theme;
+    if (theme) navigate(`/${theme}`);
+  });
+});
+
+// Botón "Volver" de la vista de juego
+document.querySelector('#btn-back').addEventListener('click', () => {
+  navigate('/');
+});
+
+// Navegación con botones del browser (atrás / adelante)
+window.addEventListener('popstate', handleRoute);
+
+// Navegación programática (navigate())
+window.addEventListener('locationchange', handleRoute);
+
+// ─── Arranque inicial ─────────────────────────────────────────────────────────
+
+handleRoute();
