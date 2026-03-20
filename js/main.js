@@ -41,7 +41,6 @@ async function handleRoute() {
     return;
   }
 
-  // Extraemos la key del tema desde la URL: '/pokemon' → 'pokemon'
   const themeKey = path.replace('/', '');
   await startGame(themeKey);
 }
@@ -112,7 +111,7 @@ function onNext() {
 }
 
 /**
- * Muestra la pantalla de fin de partida.
+ * Game over screen
  *
  * @param {number} score
  */
@@ -127,9 +126,9 @@ function showEndScreen(score) {
   );
 }
 
-// ─── Eventos globales ─────────────────────────────────────────────────────────
+// Events
 
-// Botones "Play" del home
+// Button Play
 document.querySelectorAll('.btn-play').forEach(btn => {
   btn.addEventListener('click', () => {
     const theme = btn.dataset.theme;
@@ -137,17 +136,11 @@ document.querySelectorAll('.btn-play').forEach(btn => {
   });
 });
 
-// Botón "Volver" de la vista de juego
+// Button Back
 document.querySelector('#btn-back').addEventListener('click', () => {
   navigate('/');
 });
 
-// Navegación con botones del browser (atrás / adelante)
+// Navegation between pages
 window.addEventListener('popstate', handleRoute);
-
-// Navegación programática (navigate())
 window.addEventListener('locationchange', handleRoute);
-
-// ─── Arranque inicial ─────────────────────────────────────────────────────────
-
-handleRoute();
